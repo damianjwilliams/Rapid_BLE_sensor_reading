@@ -67,8 +67,8 @@ Sometimes when using this dongle there will be `read timeout` errors. I do not k
 ## Comparing the methods
 From my data comparing the time-stamp embedded in the advertisement and the time-stamp generated in python when the advertisement is read, it is possible to determine that the Bluefruit BLE and the CC2540 can read advertisements at the 20 Hz rate at which they are transmitted by the ESP32, with very little delay. The  method using integrated BLE ('Bleak') was much slower, reading at a frequency as low as ~ 2 Hz (for the Mac). THis means the integrated method misses a large number of advertisements.
 
-The data I used to come to these conclusions ican br found in the `R_scripts_and_example_data` folder.
+The data and analysis R script that I used to draw these conclusions can be found in the `R_scripts_and_example_data` folder.
 
-Because of the number of missed advertisements (integrated method) and timeout errors (CC2540), I preferred the Bluefruit method. 
+Because of the number of missed advertisements (integrated method) and timeout errors (CC2540), I preferred the Bluefruit (and it was 1/2 price of the CC2540)
 
 
