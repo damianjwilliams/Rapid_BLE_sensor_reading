@@ -27,9 +27,18 @@ data_in_here = stringything.decode('utf-8', 'ignore')
 split_data = re.findall('[0-9]+', data_in_here)
 ```
 
-There are often large numbers of duplicate ardvertisements read so there needs to be a way to ensure duplicates are no counted. I created a deque to which the timestamp from the advertisement data is added, if the timestamp does not match any of the others in the deque, the sensor data is used. 
+There are often large numbers of duplicate ardvertisements read so there needs to be a way to ensure duplicates are no counted. I created a deque to which the timestamp from the advertisement data is added, if the timestamp does not match any of the others in the deque, the sensor data is used.
+
+
 
 ## Adafruit Bluefruit LE Sniffer
 This [Bluetooth sniffer dongle](https://www.adafruit.com/product/2269) captures BLE advertisements and cost about $25. This dongle is often used in conjuction with Wireshark to analyse the BLE network traffic. Unfortunately using Wireshark (or tshark or pyshark, the associated command line program and python package,respectively) is not possible for real-time measurements. This is because the driver software includes a memory buffer that prevents realtime output of decoded advertisement data. 
 
-An alternative method is to use the [nRF Sniffer for Bluetooth LE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE) developed by Nordic Semiconductors. This is available via their [downloads page](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download?lang=en#infotabs). It includes a python sniffer API 
+An alternative method is to use the [nRF Sniffer for Bluetooth LE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE) developed by Nordic Semiconductors. This is available via their [downloads page](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download?lang=en#infotabs). It includes a python sniffer API which can be used to monitor BLE packets in realtime, and was used for the basis of the `bluetooth_method.py` script. To use this script the USB port to which the Sniffer is attached can be identified using 'My Devices' in Windows or via the terminal in MacOS and running `ls /dev/tty*` command. The correct port can be added to the script on line 34
+```
+mySniffer = Sniffer.Sniffer(portnum='/dev/cu.usbserial-1410')
+```
+ ## Texas Instruments CC2540EMK-USB
+ This alternative [Sniffer dongle](https://www.ti.com/tool/CC2540EMK-USB) also captures BLE advertisements and cost about $50. There is no ready-to-use software available suitable for real-time analysis packet analysis. There is a [python script](TICCSniffer) from which CC2540_method.py was adapted.
+ 
+ For this dongle to work a USB library had to be installed. For Windows, download and run libusb-win32-devel-filter-1.2.6.0.exe from 
