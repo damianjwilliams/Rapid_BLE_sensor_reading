@@ -1,5 +1,5 @@
 # Rapid_BLE_sensor_reading
-The aim of this project is to see if it is possible to use BLE advertising data alone to monitor sensor data at high speed. This method does not require pairing between the sensor and the computer and only requires the name of the BLE sensor to be known. In this case, the temperature sensor data in advertisements broadcast from an ESP32 and data were read using Python.
+The aim of this project is to see if it is possible to use BLE advertising data alone to monitor sensor data at high speed. This method does not require pairing between the sensor and the computer and only requires the name and MAC address of the BLE sensor to be known. In this case, the temperature sensor data in advertisements broadcast from an ESP32 and data were read using Python. There doesn't seem to be much practical use for this (in most cases you can pair the sensor and computer, which enables much higher speed communication) but it was fun figuring it out.
 
 ## ESP32 setup
 An ESP32 dev board is used to transmit data from a [TMP102](https://www.sparkfun.com/products/13314) sensor. The maximum rate at which the sensor rate can be read is ~8 Hz, below the maximum rate at which the advertisements are transmitted. I didn't have a sensor which could update faster, unfortunately.  The arduino code (BLE_temp_sensor.ino) is based on [BLEcast](https://github.com/ericbarch/BLECast) by Eric Barch. 
@@ -63,5 +63,12 @@ The CC2540 will have `VendorID=0x0451 & ProductID=0x16b3`
 As with the Bluefruit, the ESP32 advertisment is identified from the MAC address, line 192: `if("fe7c" in payload_decode_no_b):` and the sensor data parsed from the payload using the encompassing `x_ _x`. In this case, the hexadecimal representation of the characters is used for the search. Line 200: `ha = re.search(r'785f(.*?)5f78', payload_decode_no_b).group(1)`
 
 Sometimes when using this dongle there will be `read timeout` errors. I do not know why these occur but might be avoided by changing line 14 `TIMEOUT = 500` and/or line 17 `DATA_TIMEOUT = 200`. I haven't got it figured out yet. 
+
+## Comparing the methods
+From my data comparing the time-stamp embedded in the advertisement and the time-stamp generated in python when the advertisement is read, it is possible to determine that the Bluefruit BLE and the CC2540 can read advertisements at the 20 Hz rate at which they are transmitted by the ESP32, with very little delay. The  method using integrated BLE ('Bleak') was much slower, reading at a frequency as low as ~ 2 Hz (for the Mac). THis means the integrated method misses a large number of advertisements.
+
+The data I used to come to these conclusions ican br found in the `R_scripts_and_example_data` folder.
+
+Because of the number of missed advertisements (integrated method) and timeout errors (CC2540), I preferred the Bluefruit method. 
 
 
