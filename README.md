@@ -38,7 +38,30 @@ An alternative method is to use the [nRF Sniffer for Bluetooth LE](https://www.n
 ```
 mySniffer = Sniffer.Sniffer(portnum='/dev/cu.usbserial-1410')
 ```
+To identify which advertisement packet comes from the ESP32, I searched for ESP32 MAC address within the payload. In this example the ESP32 MAC address is `94:B9:7E:DA:7C:FE`. Because of the way the packet is read, it is necessary to search for the MAC address in (almost) reverse, i.e. `fe7cda7eb994`. In line 73: `if ("fe7c" in str(address)):`
+
+In this script the sensor readings are parsed from the payload by matching the encompassing `x_ _x` characters. Line 77: `ESP32_data = re.search(r'x_(.*?)_x', payload_string).group(1)`
+
+The saving location needs to be changed on line 98. 
+
  ## Texas Instruments CC2540EMK-USB
  This alternative [Sniffer dongle](https://www.ti.com/tool/CC2540EMK-USB) also captures BLE advertisements and cost about $50. There is no ready-to-use software available suitable for real-time analysis packet analysis. There is a [python script](TICCSniffer) from which CC2540_method.py was adapted.
  
- For this dongle to work a USB library had to be installed. For Windows, download and run libusb-win32-devel-filter-1.2.6.0.exe from 
+ For this dongle to work with the python script a  a PyUSB backend USB has to be installed. For Windows, download and run libusb-win32-devel-filter-1.2.6.0.exe from [sourceforge.net](https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.6.0/). For Mac, just run `brew install libusb` from the terminal. Successful installation can be confirmed by plugging in the dongle and running the following python scipt after installing pyusb (`pip install pyusb`)
+ ```
+ import sys
+import usb.core
+# find USB devices
+dev = usb.core.find(find_all=True)
+# loop through devices, printing vendor and product ids in decimal and hex
+for cfg in dev:
+  sys.stdout.write('Decimal VendorID=' + str(cfg.idVendor) + ' & ProductID=' + str(cfg.idProduct) + '\n')
+  sys.stdout.write('Hexadecimal VendorID=' + hex(cfg.idVendor) + ' & ProductID=' + hex(cfg.idProduct) + '\n\n')
+```
+The CC2540 will have `VendorID=0x0451 & ProductID=0x16b3`
+
+As with the Bluefruit, the ESP32 advertisment is identified from the MAC address, line 192: `if("fe7c" in payload_decode_no_b):` and the sensor data parsed from the payload using the encompassing `x_ _x`. In this case, the hexadecimal representation of the characters is used for the search. Line 200: `ha = re.search(r'785f(.*?)5f78', payload_decode_no_b).group(1)`
+
+Sometimes when using this dongle there will be `read timeout` errors. I do not know why these occur but might be avoided by changing line 14 `TIMEOUT = 500` and/or line 17 `DATA_TIMEOUT = 200`. I haven't got it figured out yet. 
+
+
